@@ -20,8 +20,8 @@ To run this project, ensure you have the following installed on your machine:
 ### Installation
 1. Clone the repository:
    ```bash
-   git clone https://github.com/Menma2021/algorithm_visualizer.git
-   cd algorithm_visualizer
+   git clone https://github.com/Menma2021/Algorithm_visualizer.git
+   cd Algorithm_visualizer
 2. Link the SFML libraries to your project. Depending on your IDE or build system, you may need to configure this step directly by yourself
 
 ## Usage
