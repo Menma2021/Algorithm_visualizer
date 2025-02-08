@@ -36,16 +36,18 @@ void drawTable(sf::RenderWindow& window, const vector<vector<int>>& knapsack,
     int tableWidth = knapsack[0].size() * (rectSize + spacing);
     int tableHeight = knapsack.size() * (rectSize + spacing);
 
-    // Space in the window
+    // Window
     int windowWidth = window.getSize().x;
     int windowHeight = window.getSize().y;
 
-    // Space on the right and bottom
+    // Spacing on the right and bottom
     int availableRightSpace = windowWidth - (tableWidth + 50);
     int availableBottomSpace = windowHeight - (tableHeight + 50);
 
-    for (int i = 0; i < knapsack.size(); i++) {
-        for (int j = 0; j < knapsack[0].size(); j++) {
+    for (int i = 0; i < knapsack.size(); i++)
+    {
+        for (int j = 0; j < knapsack[0].size(); j++)
+        {
             sf::RectangleShape cell(sf::Vector2f(rectSize, rectSize));
             cell.setPosition(j * (rectSize + spacing) + 25, i * (rectSize + spacing) + 25);
 
@@ -84,7 +86,8 @@ void drawTable(sf::RenderWindow& window, const vector<vector<int>>& knapsack,
     }
 
     // Information for the current element
-    if (cur_i > 0 && cur_j >= 0) {
+    if (cur_i > 0 && cur_j >= 0)
+    {
         int curWeight = weight[cur_i - 1];
         int curPrice = price[cur_i - 1];
         string infoStr = "Item (" + to_string(cur_i) + "):\n";
@@ -92,20 +95,24 @@ void drawTable(sf::RenderWindow& window, const vector<vector<int>>& knapsack,
 
         infoStr += "knap[" + to_string(cur_i - 1) + "][" + to_string(cur_j) + "] = " + to_string(knapsack[prev_i][prev_j]) + "\n";
 
-        if (prev_i2 >= 0 && prev_j2 >= 0) {
+        if (prev_i2 >= 0 && prev_j2 >= 0)
+        {
             infoStr += "knap[" + to_string(cur_i - 1) + "][" + to_string(prev_j2) + "] = " + to_string(knapsack[prev_i2][prev_j2]) + "\n";
         }
 
         // Chosen option
-        if (prev_j2 >= 0 && knapsack[cur_i][cur_j] == knapsack[prev_i2][prev_j2] + curPrice) {
+        if (prev_j2 >= 0 && knapsack[cur_i][cur_j] == knapsack[prev_i2][prev_j2] + curPrice)
+        {
             infoStr += "Chosen: knap[" + to_string(prev_i2) + "][" + to_string(prev_j2) + "] + " + to_string(curPrice);
         }
-        else {
+        else
+        {
             infoStr += "Chosen: knap[" + to_string(prev_i) + "][" + to_string(prev_j) + "]";
         }
 
         // Info placement depending on the free space
-        if (availableRightSpace > availableBottomSpace) {
+        if (availableRightSpace > availableBottomSpace)
+        {
             // Place the info on the right + vertical display
             infoText.setPosition(tableWidth + 50, 25);
             infoText.setString(infoStr);
@@ -130,22 +137,23 @@ void drawTable(sf::RenderWindow& window, const vector<vector<int>>& knapsack,
     // Drawing lines between current element and elements that are being checked
     float thickness = rectSize / 10.0f;
 
-    if (prev_i >= 0 && prev_j >= 0) {
+    if (prev_i >= 0 && prev_j >= 0) 
+    {
         sf::Vector2f start(cur_j * (rectSize + spacing) + 25 + rectSize / 2, cur_i * (rectSize + spacing) + 25 + rectSize / 2);
         sf::Vector2f end(prev_j * (rectSize + spacing) + 25 + rectSize / 2, prev_i * (rectSize + spacing) + 25 + rectSize / 2);
         drawLine(window, start, end, thickness, sf::Color::Blue);
     }
 
-    if (prev_i2 >= 0 && prev_j2 >= 0) {
+    if (prev_i2 >= 0 && prev_j2 >= 0) 
+    {
         sf::Vector2f start(cur_j * (rectSize + spacing) + 25 + rectSize / 2, cur_i * (rectSize + spacing) + 25 + rectSize / 2);
         sf::Vector2f end(prev_j2 * (rectSize + spacing) + 25 + rectSize / 2, prev_i2 * (rectSize + spacing) + 25 + rectSize / 2);
         drawLine(window, start, end, thickness, sf::Color::Blue);
     }
 }
 
-int main()
+void KnapsackVisualizer()
 {
-    // Data input
     int n, max_w, test;
     bool timed;
     cout << "Enter max weight and item amount: ";
@@ -171,7 +179,7 @@ int main()
     if (!font.loadFromFile("fonts/OpenSans-Regular.ttf"))
     {
         cout << "Error: font not found\n";
-        return -1;
+        return;
     }
 
     int rectSize = min(700 / (n + 1), 1150 / (max_w + 1));
@@ -212,8 +220,7 @@ int main()
         while (window.pollEvent(event))
         {
             // Checking for closing window
-            if (event.type == sf::Event::Closed)
-                window.close();
+            if (event.type == sf::Event::Closed) window.close();
 
             // Checking for left-click
             if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
@@ -223,7 +230,8 @@ int main()
         }
 
         // Knapsack solving
-        for (int i = 1; i <= n; i++) {
+        for (int i = 1; i <= n; i++)
+        {
             for (int j = 1; j <= max_w; j++)
             {
                 int prev_i = i - 1;
@@ -270,7 +278,7 @@ int main()
                             if (event.type == sf::Event::Closed)
                             {
                                 window.close();
-                                return 0;
+                                return;
                             }
 
                             if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
@@ -283,6 +291,11 @@ int main()
             }
         }
 
+        window.clear();
+        drawTable(window, knapsack, rectSize, spacing, font, n, max_w, n - 1, max_w, n - 1, (max_w - weight[n - 1] >= 0) ? (max_w - weight[n - 1]) : -1, weight, price);
+        window.display();
+        sf::sleep(sf::milliseconds(500));
+
         int totalValue = knapsack[n][max_w];
         int totalWeight = 0;
         int remainingCapacity = max_w;
@@ -290,8 +303,10 @@ int main()
         vector<int> selectedItems;
 
         // Checking items for the optimal solution
-        for (int i = n; i > 0 && totalValue > 0; i--) {
-            if (totalValue != knapsack[i - 1][remainingCapacity]) {
+        for (int i = n; i > 0 && totalValue > 0; i--) 
+        {
+            if (totalValue != knapsack[i - 1][remainingCapacity]) 
+            {
                 selectedItems.push_back(i - 1);
                 totalWeight += weight[i - 1];
                 totalValue -= price[i - 1];
@@ -306,9 +321,11 @@ int main()
 
         ostringstream selectedItemsStream;
         selectedItemsStream << "Items selected: ";
-        for (size_t i = 0; i < selectedItems.size(); ++i) {
+        for (size_t i = 0; i < selectedItems.size(); i++)
+        {
             selectedItemsStream << selectedItems[i];
-            if (i < selectedItems.size() - 1) {
+            if (i < selectedItems.size() - 1) 
+            {
                 selectedItemsStream << ", ";
             }
         }
@@ -322,16 +339,13 @@ int main()
 
         window.display();
 
-        cout << selectedItemsStream.str();
-
+        cout << selectedItemsStream.str() << endl;
+        cout << "Maximum value: " << knapsack[n][max_w] << endl;
         cout << "Enter to leave" << endl;
         cin.ignore();
         cin.get();
 
         window.close();
     }
-
-    cout << "Maximum value: " << knapsack[n][max_w] << endl;
-
-    return 0;
+    return;
 }
