@@ -83,7 +83,7 @@ void drawVisualization(sf::RenderWindow& window, const Step& step, int rectWidth
     drawText(window, "Step Progress: x", 10, 70, font, 20, sf::Color::White);
 }
 
-void SlidingVisualizer()
+void PointerVisualizer()
 {
     int n;
     cout << "Enter amount of heights: ";
@@ -95,7 +95,7 @@ void SlidingVisualizer()
     vector<Step> steps;
     trappingRainWaterSimulation(height, steps);
 
-    sf::RenderWindow window(sf::VideoMode(1280, 800), "Trapping Rain Water Visualization");
+    sf::RenderWindow window(sf::VideoMode(1280, 800), "Two Pointer Visualizer");
     sf::Font font;
     if (!font.loadFromFile("fonts/OpenSans-Regular.ttf"))
     {

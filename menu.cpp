@@ -1,9 +1,9 @@
 #include "SFML/Graphics.hpp"
 #include "knapsack_visualizer.h"
 #include "sorting_visualizer.h"
-#include "sliding_visualizer.h"
+#include "pointer_visualizer.h"
 #include "binary_visualizer.h"
-//#include "graph_visualizer.h"
+#include "graph_visualizer.h"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -87,13 +87,13 @@ int main()
                             SortingVisualizer();
                             break;
                         case 2:
-                            SlidingVisualizer();
+                            PointerVisualizer();
                             break;
                         case 3:
                             BinaryVisualizer();
                             break;
                         case 4:
-                            //GraphVisualizer();
+                            GraphVisualizer();
                             break;
                         }
                     }

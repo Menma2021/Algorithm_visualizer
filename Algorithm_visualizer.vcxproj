@@ -129,7 +129,7 @@
     <ClCompile Include="graph_visualizer.cpp" />
     <ClCompile Include="knapsack_visualizer.cpp" />
     <ClCompile Include="menu.cpp" />
-    <ClCompile Include="sliding_visualizer.cpp" />
+    <ClCompile Include="pointer_visualizer.cpp" />
     <ClCompile Include="sorting_visualizer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -236,7 +236,7 @@
     <ClInclude Include="libraries\include\sfml\window\WindowBase.hpp" />
     <ClInclude Include="libraries\include\sfml\window\WindowHandle.hpp" />
     <ClInclude Include="libraries\include\sfml\window\WindowStyle.hpp" />
-    <ClInclude Include="sliding_visualizer.h" />
+    <ClInclude Include="pointer_visualizer.h" />
     <ClInclude Include="sorting_visualizer.h" />
   </ItemGroup>
   <ItemGroup>

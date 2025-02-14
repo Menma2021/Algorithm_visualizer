@@ -347,5 +347,4 @@ void KnapsackVisualizer()
 
         window.close();
     }
-    return;
 }
