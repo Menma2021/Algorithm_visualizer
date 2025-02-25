@@ -3,6 +3,8 @@
 #include <vector>
 #include <stack>
 #include <queue>
+#include <cmath>
+#include <unordered_map>
 #include <cstdlib>
 #include <ctime>
 
@@ -16,14 +18,24 @@ struct Cell
 void drawMaze(sf::RenderWindow& window, vector<vector<int>>& maze, int cellSize, int n, vector<int> steps, int stepIndex)
 {
     window.clear();
+
+    // Drawing with Vertext array (for better perfomance)
+    sf::VertexArray vertices(sf::Quads);
     for (int y = 0; y < n; y++)
     {
         for (int x = 0; x < n; x++)
         {
-            sf::RectangleShape cell(sf::Vector2f(cellSize, cellSize));
-            cell.setPosition(x * cellSize, y * cellSize);
-            cell.setFillColor(maze[y][x] == 1 ? sf::Color::Black : sf::Color::White);
-            window.draw(cell);
+            sf::Color color = (maze[y][x] == 1) ? sf::Color::Black : sf::Color::White;
+
+            sf::Vertex v0(sf::Vector2f(x * cellSize, y * cellSize), color);
+            sf::Vertex v1(sf::Vector2f((x + 1) * cellSize, y * cellSize), color);
+            sf::Vertex v2(sf::Vector2f((x + 1) * cellSize, (y + 1) * cellSize), color);
+            sf::Vertex v3(sf::Vector2f(x * cellSize, (y + 1) * cellSize), color);
+
+            vertices.append(v0);
+            vertices.append(v1);
+            vertices.append(v2);
+            vertices.append(v3);
         }
     }
 
@@ -33,12 +45,20 @@ void drawMaze(sf::RenderWindow& window, vector<vector<int>>& maze, int cellSize,
         int x = pos % n;
         int y = pos / n;
 
-        sf::RectangleShape cell(sf::Vector2f(cellSize, cellSize));
-        cell.setPosition(x * cellSize, y * cellSize);
-        cell.setFillColor(sf::Color::Cyan);
-        window.draw(cell);
+        sf::Color pathColor = sf::Color::Cyan;
+
+        sf::Vertex v0(sf::Vector2f(x * cellSize, y * cellSize), pathColor);
+        sf::Vertex v1(sf::Vector2f((x + 1) * cellSize, y * cellSize), pathColor);
+        sf::Vertex v2(sf::Vector2f((x + 1) * cellSize, (y + 1) * cellSize), pathColor);
+        sf::Vertex v3(sf::Vector2f(x * cellSize, (y + 1) * cellSize), pathColor);
+
+        vertices.append(v0);
+        vertices.append(v1);
+        vertices.append(v2);
+        vertices.append(v3);
     }
 
+    window.draw(vertices);
     window.display();
 }
 
@@ -152,7 +172,7 @@ void aPath(int start, int end, vector<vector<int>>& adMatrix, vector<int>& steps
 void GraphVisualizer()
 {
     // Maze initial values
-    int n = 281;
+    int n = 61;
     int cellSize = 4;
     int stepIndex = 0;
 
