@@ -3,9 +3,10 @@
 #include <vector>
 #include <stack>
 #include <queue>
-#include <cmath>
 #include <unordered_map>
+#include <unordered_set>
 #include <cstdlib>
+#include<cmath>
 #include <ctime>
 
 using namespace std;
@@ -15,22 +16,45 @@ struct Cell
     int x, y;
 };
 
-void drawMaze(sf::RenderWindow& window, vector<vector<int>>& maze, int cellSize, int n, vector<int> steps, int stepIndex)
+struct Node
 {
-    window.clear();
+    int x, y;
+    float gCost, hCost, fCost;
+};
 
+struct Compare
+{
+    bool operator()(const Node& left, const Node& right)
+    {
+        return left.fCost > right.fCost;
+    }
+};
+
+static void drawText(sf::RenderWindow& window, const string& text, int x, int y, sf::Font& font, int size = 20, sf::Color color = sf::Color::White)
+{
+    sf::Text sfText;
+    sfText.setFont(font);
+    sfText.setString(text);
+    sfText.setCharacterSize(size);
+    sfText.setFillColor(color);
+    sfText.setPosition(x, y);
+    window.draw(sfText);
+}
+
+void drawMaze(sf::RenderWindow& window, vector<vector<int>>& maze, int cellSize, int n, vector<int> steps, int stepIndex, int offsetX, int offsetY)
+{
     // Drawing with Vertext array (for better perfomance)
     sf::VertexArray vertices(sf::Quads);
     for (int y = 0; y < n; y++)
     {
         for (int x = 0; x < n; x++)
         {
-            sf::Color color = (maze[y][x] == 1) ? sf::Color::Black : sf::Color::White;
+            sf::Color color = (maze[y][x] == 1) ? sf::Color::Blue : sf::Color::White;
 
-            sf::Vertex v0(sf::Vector2f(x * cellSize, y * cellSize), color);
-            sf::Vertex v1(sf::Vector2f((x + 1) * cellSize, y * cellSize), color);
-            sf::Vertex v2(sf::Vector2f((x + 1) * cellSize, (y + 1) * cellSize), color);
-            sf::Vertex v3(sf::Vector2f(x * cellSize, (y + 1) * cellSize), color);
+            sf::Vertex v0(sf::Vector2f(offsetX + x * cellSize, offsetY + y * cellSize), color);
+            sf::Vertex v1(sf::Vector2f(offsetX + (x + 1) * cellSize, offsetY + y * cellSize), color);
+            sf::Vertex v2(sf::Vector2f(offsetX + (x + 1) * cellSize, offsetY + (y + 1) * cellSize), color);
+            sf::Vertex v3(sf::Vector2f(offsetX + x * cellSize, offsetY + (y + 1) * cellSize), color);
 
             vertices.append(v0);
             vertices.append(v1);
@@ -45,12 +69,12 @@ void drawMaze(sf::RenderWindow& window, vector<vector<int>>& maze, int cellSize,
         int x = pos % n;
         int y = pos / n;
 
-        sf::Color pathColor = sf::Color::Cyan;
+        sf::Color pathColor = (i == stepIndex) ? sf::Color::Red : sf::Color::Cyan;
 
-        sf::Vertex v0(sf::Vector2f(x * cellSize, y * cellSize), pathColor);
-        sf::Vertex v1(sf::Vector2f((x + 1) * cellSize, y * cellSize), pathColor);
-        sf::Vertex v2(sf::Vector2f((x + 1) * cellSize, (y + 1) * cellSize), pathColor);
-        sf::Vertex v3(sf::Vector2f(x * cellSize, (y + 1) * cellSize), pathColor);
+        sf::Vertex v0(sf::Vector2f(offsetX + x * cellSize, offsetY + y * cellSize), pathColor);
+        sf::Vertex v1(sf::Vector2f(offsetX + (x + 1) * cellSize, offsetY + y * cellSize), pathColor);
+        sf::Vertex v2(sf::Vector2f(offsetX + (x + 1) * cellSize, offsetY + (y + 1) * cellSize), pathColor);
+        sf::Vertex v3(sf::Vector2f(offsetX + x * cellSize, offsetY + (y + 1) * cellSize), pathColor);
 
         vertices.append(v0);
         vertices.append(v1);
@@ -59,7 +83,6 @@ void drawMaze(sf::RenderWindow& window, vector<vector<int>>& maze, int cellSize,
     }
 
     window.draw(vertices);
-    window.display();
 }
 
 void generateMaze(int startX, int startY, vector<vector<int>>& maze, int n) 
@@ -110,7 +133,6 @@ void DFS(int start, int end, vector<vector<int>>& adMatrix, vector<int>& steps)
     vector<bool> visited(adMatrix.size(), false);
 
     nodes.push(start); // DFS start
-    steps.push_back(start);
 
     while (!nodes.empty())
     {
@@ -138,7 +160,6 @@ void BFS(int start, int end, vector<vector<int>>& adMatrix, vector<int>& steps)
     vector<bool> visited(adMatrix.size(), false);
 
     nodes.push(start); // BFS start
-    steps.push_back(start);
 
     while (!nodes.empty())
     {
@@ -157,24 +178,110 @@ void BFS(int start, int end, vector<vector<int>>& adMatrix, vector<int>& steps)
             }
         }
     }
+    // Temporal fix: for some reason, BFS visualization does not include last step, too late to figure out why, so I'll just add one more end to the step
+    steps.push_back(end);
 }
 
-void Dijkstra(int start, int end, vector<vector<int>>& adMatrix, vector<int>& steps)
+int heurManhattan(const Node& cur, const Node& goal)
 {
-
+    return abs(cur.x - goal.x) + abs(cur.y - goal.y);
 }
 
-void aPath(int start, int end, vector<vector<int>>& adMatrix, vector<int>& steps)
+void aStar(int start, int end, vector<vector<int>>& adMatrix, vector<int>& steps)
 {
+    int n = sqrt(adMatrix[0].size());
 
+    priority_queue<Node, vector<Node>, Compare> nodes;
+    unordered_set<int> visited;
+    unordered_map<int, float> gCost;
+
+    Node startNode = {start % n, start / n, 0, 0, 0};
+    Node endNode = {end % n, end / n, 0, 0, 0};
+
+    startNode.hCost = heurManhattan(startNode, endNode);
+    startNode.fCost = startNode.hCost;
+
+    nodes.push(startNode);
+    gCost[start] = 0;
+
+    while (!nodes.empty())
+    {
+        Node current = nodes.top();
+        nodes.pop();
+
+        int curIndex = current.x + current.y * n;
+        if (visited.find(curIndex) != visited.end()) continue;
+        steps.push_back(curIndex);
+
+        if (curIndex == end)
+        {
+            return;
+        }
+
+        visited.insert(curIndex);
+        const vector<Cell> directions = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
+        for (auto& dir : directions)
+        {
+            int x = current.x + dir.x;
+            int y = current.y + dir.y;
+            if ((x > 0) && (x < n) && (y > 0) && (y < n - 1))
+            {
+                int neighbour = x + y * n;
+
+                if (visited.find(neighbour) == visited.end() && (adMatrix[curIndex][neighbour] == 1))
+                {
+                    int curgCost = gCost[curIndex] + 1;
+
+                    if (!gCost.count(neighbour) || curgCost < gCost[neighbour])
+                    {
+                        gCost[neighbour] = curgCost;
+                        Node neigh = { x, y, curgCost, heurManhattan({x, y, 0, 0, 0}, endNode), 0 };
+                        neigh.fCost = neigh.gCost + neigh.hCost;
+                        nodes.push(neigh);
+                    }
+                }
+            }
+        }
+    }
 }
 
 void GraphVisualizer()
 {
+    // Layout and text
+    const int marginX = 20;
+    const int marginY = 20;
+    const int horizontalGap = 20;
+    const int verticalGap = 50;
+    const int textLineHeight = 25;
+
     // Maze initial values
-    int n = 61;
-    int cellSize = 4;
-    int stepIndex = 0;
+    int cellSize, n = INT_MAX;
+    int dfsStep = 0, bfsStep = 0, aStep = 0;
+    int maxN = 231;
+
+    while ((n > maxN) || (n % 2 == 0) || (n <= 1))
+    {
+        cout << "Enter odd maze size n (maximum allowed: " << maxN << "): ";
+        if (cin >> n)
+        {
+            if ((n > maxN) || (n % 2 == 0) || (n <= 1))
+            {
+                cout << n << "n is too large, too small or even, enter again\n";
+            }
+        }
+        else
+        {
+            cout << "Invalid input type, try again\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            n = INT_MAX;
+        }
+    }
+
+    // HERE: 1680 - width, 1050 - height
+    int cellSizeWidth = (1050 - 2 * marginX - horizontalGap) / (2 * n);
+    int cellSizeHeight = (1680 - 2 * marginY - verticalGap - 2 * textLineHeight) / (2 * n);
+    cellSize = max(1, min(cellSizeWidth, cellSizeHeight));
 
     vector<vector<int>> maze(n, vector<int>(n, 1)); // 1 = wall, 0 = path
     vector<vector<int>> adMatrix(n * n, vector<int>(n * n, 0)); // 1 = adjacent, 0 = not
@@ -182,6 +289,7 @@ void GraphVisualizer()
 
     generateMaze(1, 1, maze, n); // Maze generation
     
+    // Adjacent matrix filling
     for (int i = 0; i < n; i++)
     {
         for (int j = 0; j < n; j++)
@@ -202,10 +310,33 @@ void GraphVisualizer()
         }
     }
 
+    // Algorithms execution
+    aStar(n, (n - 2) * n + n - 1, adMatrix, aPath);
     BFS(n, (n - 2) * n + n - 1, adMatrix, bfsPath);
-    //DFS(n, (n - 2) * n + n - 1, adMatrix, dfsPath);
+    DFS(n, (n - 2) * n + n - 1, adMatrix, dfsPath);
 
-    sf::RenderWindow window(sf::VideoMode(n * cellSize, n * cellSize), "Graph Visualizer");
+    // Offsets
+    int topRowWidth = 2 * n * cellSize + horizontalGap;
+    int topRowStartX = (1680 - topRowWidth) / 2;
+
+    int dfsOffsetX = topRowStartX;
+    int dfsOffsetY = marginY;
+    int bfsOffsetX = topRowStartX + n * cellSize + horizontalGap;
+    int bfsOffsetY = marginY;
+    int topTextY = marginY + n * cellSize + 5;
+    int aStarOffsetX = marginX + (1680 - 2 * marginX - n * cellSize) / 2;
+    int aStarOffsetY = marginY + n * cellSize + verticalGap + textLineHeight;
+    int aStarTextY = aStarOffsetY + n * cellSize + 5;
+
+    sf::RenderWindow window(sf::VideoMode(1680, 1050), "Graph Visualizer");
+
+    sf::Font font;
+    if (!font.loadFromFile("fonts/OpenSans-Regular.ttf"))
+    {
+        cout << "Error: font not found\n";
+        return;
+    }
+
     while (window.isOpen())
     {
         sf::Event event;
@@ -215,13 +346,32 @@ void GraphVisualizer()
                 window.close();
         }
 
-        drawMaze(window, maze, cellSize, n, bfsPath, stepIndex);
-        //drawMaze(window, maze, cellSize, n, dfsPath, stepIndex);
+        window.clear();
 
-        if (stepIndex < bfsPath.size())  // if (stepIndex < dfsPath.size())
+        // Mazes drawing
+        drawMaze(window, maze, cellSize, n, aPath, aStep, aStarOffsetX, aStarOffsetY);
+        drawMaze(window, maze, cellSize, n, dfsPath, dfsStep, dfsOffsetX, dfsOffsetY);
+        drawMaze(window, maze, cellSize, n, bfsPath, bfsStep, bfsOffsetX, bfsOffsetY);
+
+        // Data visualization
+        drawText(window, "DFS: " + to_string(dfsStep) + "/" + to_string(dfsPath.size() - 1), dfsOffsetX, topTextY, font);
+        drawText(window, "BFS: " + to_string(bfsStep) + "/" + to_string(bfsPath.size() - 2), bfsOffsetX, topTextY, font);
+        drawText(window, "A*: " + to_string(aStep) + "/" + to_string(aPath.size() - 1), aStarOffsetX, aStarTextY, font);
+
+        window.display();
+
+        // Steps
+        if (dfsStep < dfsPath.size() - 1) dfsStep++;
+        if (bfsStep < bfsPath.size() - 1) bfsStep++;
+        if (aStep < aPath.size() - 1) aStep++;
+
+        if ((dfsStep == dfsPath.size() - 1) && (bfsStep == bfsPath.size() - 1) && (aStep == aPath.size() - 1))
         {
-            stepIndex++;
-            //sf::sleep(sf::milliseconds(10)); // Slowing down for visibility
+            cout << "\nEnter to leave\n" << endl;
+            cin.ignore();
+            cin.get();
+
+            window.close();
         }
     }
 }

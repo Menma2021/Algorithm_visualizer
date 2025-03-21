@@ -191,6 +191,7 @@ void SortingVisualizer()
     mergeSort(mergeArray, 0, n - 1, mergeStates, mergeHighlights);
     quickSort(quickArray, 0, n - 1, quickStates, quickHighlights);
 
+    // HERE: 1680 - width, 1050 - height
     sf::RenderWindow window(sf::VideoMode(1680, 1050), "Sorting Visualizer");
     sf::Font font;
     if (!font.loadFromFile("fonts/OpenSans-Regular.ttf"))

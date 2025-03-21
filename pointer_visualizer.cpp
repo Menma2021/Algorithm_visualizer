@@ -95,6 +95,7 @@ void PointerVisualizer()
     vector<Step> steps;
     trappingRainWaterSimulation(height, steps);
 
+    // HERE: 1280 - width, 800 - height
     sf::RenderWindow window(sf::VideoMode(1280, 800), "Two Pointer Visualizer");
     sf::Font font;
     if (!font.loadFromFile("fonts/OpenSans-Regular.ttf"))

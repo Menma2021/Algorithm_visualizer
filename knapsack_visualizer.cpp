@@ -41,8 +41,8 @@ void drawTable(sf::RenderWindow& window, const vector<vector<int>>& knapsack,
     int windowHeight = window.getSize().y;
 
     // Spacing on the right and bottom
-    int availableRightSpace = windowWidth - (tableWidth + 50);
-    int availableBottomSpace = windowHeight - (tableHeight + 50);
+    int availableRight = windowWidth - (tableWidth + 50);
+    int availableBottom = windowHeight - (tableHeight + 50);
 
     for (int i = 0; i < knapsack.size(); i++)
     {
@@ -111,7 +111,7 @@ void drawTable(sf::RenderWindow& window, const vector<vector<int>>& knapsack,
         }
 
         // Info placement depending on the free space
-        if (availableRightSpace > availableBottomSpace)
+        if (availableRight > availableBottom)
         {
             // Place the info on the right + vertical display
             infoText.setPosition(tableWidth + 50, 25);
@@ -154,13 +154,40 @@ void drawTable(sf::RenderWindow& window, const vector<vector<int>>& knapsack,
 
 void KnapsackVisualizer()
 {
-    int n, max_w, test;
+    int n = INT_MAX, max_w = INT_MAX, test = INT_MAX;
+    int maxN = 40, maxMax_w = 40;
     bool timed;
-    cout << "Enter max weight and item amount: ";
-    cin >> max_w >> n;
+
+    // Entering n and max weigth with validation
+    while ((n > maxN) || (max_w > maxMax_w) || (n <= 1) || (max_w <= 1))
+    {
+        cout << "Enter max weight and item amount: (maximum allowed for both: " << maxN << ", for visualization purposes): ";
+        if (cin >> max_w >> n)
+        {
+            if ((n > maxN) || (max_w > maxMax_w) || (n <= 1) || (max_w <= 1))
+            {
+                cout << "n or m are too large or too small, enter again\n";
+            }
+        }
+        else
+        {
+            cout << "Invalid input type, try again\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            n = INT_MAX;
+            max_w = INT_MAX;
+        }
+    }
+
+    // Entering visualizing mode with validation
     cout << "Enter if DP should work automatically or on left-click (0 if automatically, any other number if on-click): ";
-    cin >> test;
-    timed = test == 0 ? true : false;
+    if (cin >> test) timed = test == 0 ? true : false;
+    else
+    {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        timed = false;
+    }
 
     sf::Time wait = sf::milliseconds(5000 / (n * max_w));
     vector<int> weight(n);
@@ -170,9 +197,24 @@ void KnapsackVisualizer()
     cout << "Enter " << n << " entries with 2 values: weight and price of item 'n': ";
     for (int i = 0; i < n; i++)
     {
-        cin >> weight[i] >> price[i];
+        while (true)
+        {
+            cout << "Item " << i + 1 << " (weight, price): ";
+            if (cin >> weight[i] >> price[i])
+            {
+                if ((weight[i] >= 0) && (price[i] >= 0)) break;
+                else cout << "Weight or price are negative, try again\n";
+            }
+            else
+            {
+                cout << "Invalid input type, try again\n";
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            }
+        }
     }
 
+    // HERE: 1280 - width, 800 - height
     sf::RenderWindow window(sf::VideoMode(1280, 800), "Knapsack Visualizer");
 
     sf::Font font;
