@@ -434,10 +434,11 @@ FodyWeavers.xsd
 # Ignore everything in the Executable folder
 Executable/*
 
-# Except the files we want to track (in this case, exe, dll files, etc.)
-!Executable/*.exe
-!Executable/*.dll
-!Executable/*.pdb
+# Unignore the folder itself
+!Executable/
+
+# Unignore everything inside it
+!Executable/**
 
 ### VisualStudio Patch ###
 # Additional files built by Visual Studio
