@@ -77,19 +77,76 @@ void BinaryVisualizer()
 {
     srand(static_cast<unsigned>(time(0)));
 
-    int n;
-    cout << "Enter the number of elements (n): ";
-    cin >> n;
+    int n = INT_MAX;
+    int maxN = 640;
 
+    // Entering n with validation
+    while (n > maxN || n <= 1)
+    {
+        cout << "Enter the number of elements (2 to " << maxN << "): ";
+        if (cin >> n)
+        {
+            if (n > maxN || n <= 1)
+            {
+                cout << "n is too large or too small, enter again\n";
+            }
+
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+        else
+        {
+            cout << "Invalid input type, try again\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            n = INT_MAX;
+        }
+    }
+
+    // Feeling in array
     vector<int> array(n);
     for (int i = 0; i < n; i++) 
     {
         array[i] = i + 1;
     }
 
-    int target;
-    cout << "Enter the target element (1 to " << n << "): ";
-    cin >> target;
+    // Entering target with validation
+    int target = INT_MAX;
+    while (target < 1 || target > n)
+    {
+        cout << "Enter the target element (1 to " << n << "): ";
+        if (cin >> target)
+        {
+            if (target < 1 || target > n)
+            {
+                cout << "Target is too large or too small, enter again\n";
+            }
+
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+        else
+        {
+            cout << "Invalid input type, try again\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            target = INT_MAX;
+        }
+    }
+
+    // Entering visualizing mode with validation
+    int test;
+    bool timed;
+    cout << "Enter if Binary Search should work automatically or on left-click (0 if automatically, any other number if on-click): ";
+    if (cin >> test)
+    {
+        timed = test == 0 ? true : false;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+    else
+    {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        timed = false;
+    }
 
     vector<int> midStates, lowStates, highStates;
     binarySearch(array, target, midStates, lowStates, highStates);
@@ -112,19 +169,22 @@ void BinaryVisualizer()
     while (window.isOpen()) 
     {
         sf::Event event;
-        while (window.pollEvent(event)) 
+        while (window.pollEvent(event))
         {
-            if (event.type == sf::Event::Closed) 
+            // Checking for closing window
+            if (event.type == sf::Event::Closed) window.close();
+
+            if (!timed && event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
             {
-                window.close();
+                step++;
             }
         }
 
         if (step >= midStates.size()) 
         {
             cout << "Enter to leave\n";
-            cin.ignore();
-            cin.get();
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
             window.close();
             return;
         }
@@ -142,7 +202,11 @@ void BinaryVisualizer()
         drawText(window, "Target: " + to_string(target), 10, 170, font);
 
         window.display();
-        sf::sleep(delay);
-        step++;
+
+        if (timed)
+        {
+            sf::sleep(delay);
+            step++;
+        }
     }
 }

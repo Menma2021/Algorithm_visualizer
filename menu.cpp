@@ -50,7 +50,7 @@ int main()
     {
         "Knapsack Visualizer",
         "Sorting Algorithms Visualizer",
-        "Pointer & Sliding Window Visualizer",
+        "Pointer Visualizer",
         "Binary Search Visualizer",
         "Graph Algorithms Visualizer"
     };
@@ -78,6 +78,7 @@ int main()
                 for (size_t i = 0; i < buttons.size(); ++i) {
                     if (buttons[i].shape.getGlobalBounds().contains(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y))) 
                     {
+                        system("cls");
                         switch (i) 
                         {
                         case 0:

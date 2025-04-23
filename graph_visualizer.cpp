@@ -268,6 +268,7 @@ void GraphVisualizer()
             {
                 cout << n << "n is too large, too small or even, enter again\n";
             }
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
         }
         else
         {
@@ -367,11 +368,11 @@ void GraphVisualizer()
 
         if ((dfsStep == dfsPath.size() - 1) && (bfsStep == bfsPath.size() - 1) && (aStep == aPath.size() - 1))
         {
-            cout << "\nEnter to leave\n" << endl;
-            cin.ignore();
-            cin.get();
-
+            cout << "\nEnter to leave\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
             window.close();
+            return;
         }
     }
 }

@@ -168,6 +168,7 @@ void KnapsackVisualizer()
             {
                 cout << "n or m are too large or too small, enter again\n";
             }
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
         }
         else
         {
@@ -181,7 +182,11 @@ void KnapsackVisualizer()
 
     // Entering visualizing mode with validation
     cout << "Enter if DP should work automatically or on left-click (0 if automatically, any other number if on-click): ";
-    if (cin >> test) timed = test == 0 ? true : false;
+    if (cin >> test)
+    {
+        timed = test == 0 ? true : false;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
     else
     {
         cin.clear();
@@ -204,6 +209,7 @@ void KnapsackVisualizer()
             {
                 if ((weight[i] >= 0) && (price[i] >= 0)) break;
                 else cout << "Weight or price are negative, try again\n";
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
             }
             else
             {
@@ -384,6 +390,7 @@ void KnapsackVisualizer()
         cout << selectedItemsStream.str() << endl;
         cout << "Maximum value: " << knapsack[n][max_w] << endl;
         cout << "Enter to leave" << endl;
+        cin.clear();
         cin.ignore();
         cin.get();
 

@@ -46,7 +46,7 @@ void drawText(sf::RenderWindow& window, const string& text, int x, int y, sf::Fo
     window.draw(sfText);
 }
 
-void drawVisualization(sf::RenderWindow& window, const Step& step, int rectWidth, int offsetX, int offsetY, int maxHeight, sf::Font& font)
+void drawVisualization(sf::RenderWindow& window, const Step& step, int rectWidth, int offsetX, int offsetY, int maxHeight, sf::Font& font, int stepIndex, int totalSteps)
 {
     for (int i = 0; i < step.heights.size(); i++)
     {
@@ -80,17 +80,123 @@ void drawVisualization(sf::RenderWindow& window, const Step& step, int rectWidth
     // Text information
     drawText(window, "Left pointer: " + to_string(step.l), 10, 10, font, 20, sf::Color::White);
     drawText(window, "Right pointer: " + to_string(step.r), 10, 40, font, 20, sf::Color::White);
-    drawText(window, "Step Progress: x", 10, 70, font, 20, sf::Color::White);
+    drawText(window, "Step Progress: " + to_string(stepIndex + 1) + " / " + to_string(totalSteps), 10, 70, font, 20, sf::Color::White);
 }
 
 void PointerVisualizer()
 {
-    int n;
-    cout << "Enter amount of heights: ";
-    cin >> n;
+    int n = INT_MAX;
+    int maxN = 310;
+
+    // Input validation for number of heights
+    while (n > maxN || n < 2)
+    {
+        cout << "Enter amount of heights (2 to " << maxN << "): ";
+        if (cin >> n)
+        {
+            if (n > maxN || n < 2)
+            {
+                cout << "n is too large or too small, enter again\n";
+            }
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+        else
+        {
+            cout << "Invalid input type, try again\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            n = INT_MAX;
+        }
+    }
+
     vector<int> height(n);
-    cout << "Enter " << n << " heights: ";
-    for (int i = 0; i < n; i++) cin >> height[i];
+    int choice;
+    cout << "Enter if values should be randomly generated or manually inputed (0 if generated, any other number if not): ";
+    if (cin >> choice)
+    {
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+    else
+    {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        choice = 0;
+    }
+
+    if (choice == 0)
+    {
+        // Generated heights
+        int maxVal = 0;
+        while (maxVal < 1)
+        {
+            cout << "Enter max height value (> 0): ";
+            if (cin >> maxVal)
+            {
+                if (maxVal < 1)
+                {
+                    cout << "Max height must be greater than 0\n";
+                }
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            }
+            else
+            {
+                cout << "Invalid input type, try again\n";
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                maxVal = 0;
+            }
+        }
+
+        srand(static_cast<unsigned>(time(0)));
+        for (int i = 0; i < n; ++i)
+        {
+            height[i] = rand() % (maxVal + 1);
+        }
+    }
+    else
+    {
+        // Manual height input with validation
+        for (int i = 0; i < n; ++i)
+        {
+            int h = INT_MIN;
+            while (h < 0)
+            {
+                cout << "Height " << i + 1 << " (non-negative): ";
+                if (cin >> h)
+                {
+                    if (h < 0)
+                    {
+                        cout << "Height must be non-negative\n";
+                    }
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                }
+                else
+                {
+                    cout << "Invalid input type, try again\n";
+                    cin.clear();
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    h = INT_MIN;
+                }
+            }
+            height[i] = h;
+        }
+    }
+
+    // Entering visualizing mode with validation
+    int test;
+    bool timed;
+    cout << "Enter if Two-Pointer should work automatically or on left-click (0 if automatically, any other number if on-click): ";
+    if (cin >> test)
+    {
+        timed = test == 0 ? true : false;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+    else
+    {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        timed = false;
+    }
 
     vector<Step> steps;
     trappingRainWaterSimulation(height, steps);
@@ -104,7 +210,7 @@ void PointerVisualizer()
         return;
     }
 
-    int rectWidth = 1280 / (1.3 * n);
+    float rectWidth = 1280.0 / (1.5 * double(n));
     int maxHeight = *max_element(height.begin(), height.end());
 
     size_t stepIndex = 0;
@@ -115,23 +221,33 @@ void PointerVisualizer()
         sf::Event event;
         while (window.pollEvent(event))
         {
-            if (event.type == sf::Event::Closed)
-                window.close();
+            // Checking for closing window
+            if (event.type == sf::Event::Closed) window.close();
+
+            if (!timed && event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
+            {
+                stepIndex++;
+            }
         }
 
         if (stepIndex >= steps.size())
         {
-            cout << "Enter to leave\n" << endl;
-            cin.ignore();
-            cin.get();
+            cout << "Enter to leave\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
             window.close();
             return;
         }
 
         window.clear();
-        drawVisualization(window, steps[stepIndex], rectWidth, 5, 750, maxHeight, font);
+        Step& currentStep = steps[stepIndex];
+        drawVisualization(window, steps[stepIndex], rectWidth, 5, 750, maxHeight, font, stepIndex, steps.size());
         window.display();
-        sf::sleep(delay);
-        stepIndex++;
+
+        if (timed)
+        {
+            sf::sleep(delay);
+            stepIndex++;
+        }
     }
 }

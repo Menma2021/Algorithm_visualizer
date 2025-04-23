@@ -161,15 +161,55 @@ void quickSort(vector<int>& array, int low, int high, vector<vector<int>>& state
 void SortingVisualizer()
 {
     srand(static_cast<unsigned>(time(0)));
-    int n;
+    int n = INT_MAX;
+    int maxN = 250;
     bool manual;
-    cout << "Enter the number of elements: ";
-    cin >> n;
 
-    cout << "Enter sorting mode (0 for automatic, 1 for manual): ";
-    cin >> manual;
+    // Entering n with validation
+    while (n > maxN || n < 2)
+    {
+        cout << "Enter number of elements (2 to " << maxN << "): ";
+        if (cin >> n)
+        {
+            if (n > maxN || n <= 1)
+            {
+                cout << "n is too large or too small, enter again\n";
+            }
 
-    sf::Time delay = sf::milliseconds(250 / n);
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+        else
+        {
+            cout << "Invalid input type, try again\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            n = INT_MAX;
+        }
+    }
+
+    int sortMode = -1;
+    while (sortMode != 0 && sortMode != 1)
+    {
+        cout << "Enter sorting mode (0 for automatic, 1 for manual): ";
+        if (cin >> sortMode)
+        {
+            if (sortMode != 0 && sortMode != 1) 
+            {
+                cout << "Please enter 0 or 1 only\n";
+            }
+
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+        else
+        {
+            cout << "Invalid input, try again\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+    }
+    manual = (sortMode == 1);
+
+    sf::Time delay = sf::milliseconds(100 / n);
 
     vector<int> originalArray(n);
     for (int i = 0; i < n; i++) originalArray[i] = i + 1;
@@ -205,7 +245,7 @@ void SortingVisualizer()
     cout << "bubbleStates size: " << mergeStates.size() << ", bubbleHighlights size: " << mergeHighlights.size() << endl;
     cout << "bubbleStates size: " << quickStates.size() << ", bubbleHighlights size: " << quickHighlights.size() << endl;
 
-    float rectWidth = max(double(1680.0 / (2.13 * double(n))), 0.1);
+    float rectWidth = max(double(1680.0 / (2.4 * double(n))), 0.1);
     bool nextStep = false;
 
     size_t bubbleStep = 0, insertionStep = 0, mergeStep = 0, quickStep = 0;
@@ -263,11 +303,11 @@ void SortingVisualizer()
         if (bubbleStep == bubbleStates.size() - 1 && insertionStep == insertionStates.size() - 1 &&
             mergeStep == mergeStates.size() - 1 && quickStep == quickStates.size() - 1)
         {
-            cout << "\nEnter to leave\n" << endl;
-            cin.ignore();
-            cin.get();
-
+            cout << "\nEnter to leave\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
             window.close();
+            return;
         }
     }
 }
