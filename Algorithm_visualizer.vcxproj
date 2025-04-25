@@ -22,6 +22,7 @@
     <VCProjectVersion>17.0</VCProjectVersion>
     <ProjectGuid>{DE266488-5D8E-4D46-9965-20351E567754}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
+    <ProjectName>Visualizer</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -92,6 +93,7 @@
     <ClCompile>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
+      <AdditionalIncludeDirectories>C:\Users\sagt2\Projects\C++\Algorithm_visualizer\Visualizer;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -115,6 +117,7 @@
     <ClCompile>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
+      <AdditionalIncludeDirectories>C:\Users\sagt2\Projects\C++\Algorithm_visualizer\Visualizer;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -125,17 +128,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="binary_visualizer.cpp" />
-    <ClCompile Include="graph_visualizer.cpp" />
-    <ClCompile Include="knapsack_visualizer.cpp" />
-    <ClCompile Include="menu.cpp" />
-    <ClCompile Include="pointer_visualizer.cpp" />
-    <ClCompile Include="sorting_visualizer.cpp" />
+    <ClCompile Include="Visualizer\binary_visualizer.cpp" />
+    <ClCompile Include="Visualizer\graph_visualizer.cpp" />
+    <ClCompile Include="Visualizer\knapsack_visualizer.cpp" />
+    <ClCompile Include="Visualizer\menu.cpp" />
+    <ClCompile Include="Visualizer\pointer_visualizer.cpp" />
+    <ClCompile Include="Visualizer\sorting_visualizer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="binary_visualizer.h" />
-    <ClInclude Include="graph_visualizer.h" />
-    <ClInclude Include="knapsack_visualizer.h" />
     <ClInclude Include="libraries\include\sfml\Audio.hpp" />
     <ClInclude Include="libraries\include\sfml\audio\AlResource.hpp" />
     <ClInclude Include="libraries\include\sfml\audio\Export.hpp" />
@@ -236,8 +236,11 @@
     <ClInclude Include="libraries\include\sfml\window\WindowBase.hpp" />
     <ClInclude Include="libraries\include\sfml\window\WindowHandle.hpp" />
     <ClInclude Include="libraries\include\sfml\window\WindowStyle.hpp" />
-    <ClInclude Include="pointer_visualizer.h" />
-    <ClInclude Include="sorting_visualizer.h" />
+    <ClInclude Include="Visualizer\binary_visualizer.h" />
+    <ClInclude Include="Visualizer\graph_visualizer.h" />
+    <ClInclude Include="Visualizer\knapsack_visualizer.h" />
+    <ClInclude Include="Visualizer\pointer_visualizer.h" />
+    <ClInclude Include="Visualizer\sorting_visualizer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="libraries\include\sfml\audio\SoundFileFactory.inl" />
